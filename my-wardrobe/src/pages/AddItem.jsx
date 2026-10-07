@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { removeBackground } from '@imgly/background-removal'
 import { supabase } from '../lib/supabase'
 import { pathFromUrl } from '../utils/storage'
+import { Camera, Image, Star } from '../components/icons'
 
 const CATEGORIES = [
   'Camiseta', 'Blusa', 'Regata', 'Casaco', 'Calça', 'Short',
@@ -79,7 +80,7 @@ export default function AddItem({ session, item, onGoCloset }) {
     } catch (err) {
       console.error(err)
       if (id === jobId.current) {
-        setMessage('Não consegui remover o fundo. Tire outra foto ou salve sem remover.')
+        setMessage('Não deu para remover o fundo agora. Tente outra foto ou salve sem remover.')
       }
     } finally {
       if (id === jobId.current) setProcessing(false)
@@ -140,7 +141,10 @@ export default function AddItem({ session, item, onGoCloset }) {
         const { error: upError } = await supabase.storage
           .from('wardrobe')
           .upload(path, blob, { contentType })
-        if (upError) throw new Error('Erro ao enviar a foto: ' + upError.message)
+        if (upError) {
+          console.error(upError)
+          throw new Error('Não deu para enviar a foto agora. Tente de novo em instantes.')
+        }
 
         imageUrl = supabase.storage.from('wardrobe').getPublicUrl(path).data.publicUrl
       }
@@ -150,7 +154,10 @@ export default function AddItem({ session, item, onGoCloset }) {
           .from('items')
           .update({ image_url: imageUrl, category, color, rating })
           .eq('id', item.id)
-        if (dbError) throw new Error('Erro ao salvar a peça: ' + dbError.message)
+        if (dbError) {
+          console.error(dbError)
+          throw new Error('Não deu para salvar agora. Tente de novo em instantes.')
+        }
 
         // se trocou a foto, apaga a antiga do Storage (sem travar se falhar)
         if (hasNewPhoto) {
@@ -165,10 +172,13 @@ export default function AddItem({ session, item, onGoCloset }) {
         const { error: dbError } = await supabase
           .from('items')
           .insert({ image_url: imageUrl, category, color, rating })
-        if (dbError) throw new Error('Erro ao salvar a peça: ' + dbError.message)
+        if (dbError) {
+          console.error(dbError)
+          throw new Error('Não deu para salvar agora. Tente de novo em instantes.')
+        }
 
         resetAll()
-        if (andAnother) setMessage('Peça salva! ✅ Pode tirar a próxima.')
+        if (andAnother) setMessage('Peça salva com carinho. Pode adicionar a próxima.')
         else onGoCloset()
       }
     } catch (err) {
@@ -179,46 +189,33 @@ export default function AddItem({ session, item, onGoCloset }) {
     }
   }
 
-  const pickBtn = {
-    flex: 1,
-    padding: 14,
-    borderRadius: 10,
-    border: 'none',
-    background: '#ff8fb8',
-    fontSize: 16,
-    textAlign: 'center',
-    cursor: 'pointer',
-  }
-  const chip = (active) => ({
-    padding: '8px 12px',
-    borderRadius: 20,
-    border: active ? '2px solid #d6336c' : '1px solid #ccc',
-    background: active ? '#ffe3ee' : '#fff',
-    fontSize: 15,
-    cursor: 'pointer',
-  })
-
   const pickButtons = (
-    <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
-      <label style={pickBtn}>
-        📷 {editing ? 'Trocar foto' : 'Tirar foto'}
-        <input type="file" accept="image/*" capture="environment" onChange={handleFile} hidden />
+    <div className="btn-row">
+      <label className={`btn file-btn ${editing ? 'btn-soft' : 'btn-primary'}`}>
+        <Camera /> {editing ? 'Trocar foto' : 'Tirar foto'}
+        <input
+          className="visually-hidden"
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={handleFile}
+        />
       </label>
-      <label style={{ ...pickBtn, background: '#ffe3ee' }}>
-        🖼️ Galeria
-        <input type="file" accept="image/*" onChange={handleFile} hidden />
+      <label className="btn btn-soft file-btn">
+        <Image /> Escolher da galeria
+        <input className="visually-hidden" type="file" accept="image/*" onChange={handleFile} />
       </label>
     </div>
   )
 
   return (
-    <div style={{ padding: 16, paddingBottom: 90, maxWidth: 480, margin: '0 auto' }}>
-      <h2>{editing ? 'Editar peça' : 'Adicionar peça'}</h2>
+    <div className="page page-narrow">
+      <h1>{editing ? 'Editar peça' : 'Adicionar peça'}</h1>
 
       {!showEditor && (
         <>
           {pickButtons}
-          <p style={{ color: '#666', fontSize: 14 }}>
+          <p className="field-hint">
             Dica: abra a peça sobre uma superfície lisa de cor diferente (peça clara em fundo escuro,
             peça escura em fundo claro) e deixe uma margem em volta.
           </p>
@@ -227,147 +224,111 @@ export default function AddItem({ session, item, onGoCloset }) {
 
       {showEditor && (
         <>
-          <div
-            style={{
-              background: '#fff0f6',
-              borderRadius: 12,
-              padding: 8,
-              textAlign: 'center',
-              position: 'relative',
-            }}
-          >
-            <img
-              src={shownUrl}
-              style={{ maxWidth: '100%', maxHeight: 320, borderRadius: 8, opacity: processing ? 0.5 : 1 }}
-            />
-            {processing && !useOriginal && (
-              <p style={{ margin: 4 }}>
-                ✨ Removendo o fundo... só um instante, as opções liberam em seguida
-              </p>
-            )}
+          <div className={processing ? 'photo photo-lg photo-busy' : 'photo photo-lg'}>
+            <img src={shownUrl} alt="Foto da peça" />
           </div>
+          {processing && !useOriginal && (
+            <p className="photo-note" role="status">
+              Removendo o fundo... só um instante, as opções liberam em seguida.
+            </p>
+          )}
 
-          {!hasNewPhoto && editing && pickButtons}
+          {!hasNewPhoto && editing && <div style={{ marginTop: 'var(--space-3)' }}>{pickButtons}</div>}
 
           {hasNewPhoto && (
-            <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-              <button style={chip(false)} onClick={discardPhoto}>
-                {editing ? '↩️ Voltar à foto atual' : '🔄 Tirar outra foto'}
+            <div className="chips" style={{ marginTop: 'var(--space-3)' }}>
+              <button className="chip chip-ghost" onClick={discardPhoto}>
+                {editing ? 'Voltar à foto atual' : 'Tirar outra foto'}
               </button>
               {!useOriginal && (
-                <button style={chip(false)} onClick={() => setUseOriginal(true)}>
+                <button className="chip chip-ghost" onClick={() => setUseOriginal(true)}>
                   Salvar sem remover fundo
                 </button>
               )}
               {useOriginal && (
-                <button style={chip(false)} onClick={() => setUseOriginal(false)}>
+                <button className="chip chip-ghost" onClick={() => setUseOriginal(false)}>
                   Usar versão sem fundo
                 </button>
               )}
             </div>
           )}
 
-          <div style={{ opacity: blocked ? 0.35 : 1, pointerEvents: blocked ? 'none' : 'auto' }}>
-            <h4>Categoria</h4>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          <div className={blocked ? 'gated blocked' : 'gated'}>
+            <h2 className="section-title">Categoria</h2>
+            <div className="chips">
               {CATEGORIES.map((c) => (
-                <button key={c} style={chip(category === c)} onClick={() => setCategory(c)}>
+                <button
+                  key={c}
+                  className="chip"
+                  aria-pressed={category === c}
+                  onClick={() => setCategory(c)}
+                >
                   {c}
                 </button>
               ))}
             </div>
 
-            <h4>Cor</h4>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+            <h2 className="section-title">Cor</h2>
+            <div className="swatches">
               {COLORS.map((c) => (
                 <button
                   key={c.name}
+                  className="swatch"
                   title={c.name}
                   aria-label={c.name}
+                  aria-pressed={color === c.name}
                   onClick={() => setColor(c.name)}
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: '50%',
-                    background: c.hex,
-                    border: color === c.name ? '3px solid #d6336c' : '1px solid #bbb',
-                    cursor: 'pointer',
-                  }}
+                  style={{ background: c.hex }}
                 />
               ))}
             </div>
-            {color && <p style={{ margin: '6px 0 0' }}>{color}</p>}
+            {color && <p style={{ margin: 'var(--space-2) 0 0' }}>{color}</p>}
 
-            <h4>Quanto você gosta?</h4>
-            <div>
+            <h2 className="section-title">Quanto você gosta?</h2>
+            <div className="stars" role="group" aria-label="Nota da peça">
               {[1, 2, 3, 4, 5].map((n) => (
                 <button
                   key={n}
+                  className="star-btn"
+                  aria-label={`Nota ${n} de 5`}
+                  aria-pressed={n === rating}
                   onClick={() => setRating(n)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    fontSize: 36,
-                    cursor: 'pointer',
-                    color: n <= rating ? '#fcc419' : '#ccc',
-                  }}
                 >
-                  ★
+                  <Star filled={n <= rating} />
                 </button>
               ))}
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+          <div className="actions">
             {editing ? (
-              <button
-                style={{ ...pickBtn, opacity: canSave ? 1 : 0.4 }}
-                disabled={!canSave}
-                onClick={() => handleSave(false)}
-              >
+              <button className="btn btn-primary btn-block" disabled={!canSave} onClick={() => handleSave(false)}>
                 {saving ? 'Salvando...' : 'Salvar alterações'}
               </button>
             ) : (
               <>
-                <button
-                  style={{ ...pickBtn, opacity: canSave ? 1 : 0.4 }}
-                  disabled={!canSave}
-                  onClick={() => handleSave(true)}
-                >
-                  {saving ? 'Salvando...' : 'Salvar e tirar outra'}
+                <button className="btn btn-primary btn-block" disabled={!canSave} onClick={() => handleSave(false)}>
+                  {saving ? 'Salvando...' : 'Salvar peça'}
                 </button>
-                <button
-                  style={{ ...pickBtn, background: '#ffe3ee', opacity: canSave ? 1 : 0.4 }}
-                  disabled={!canSave}
-                  onClick={() => handleSave(false)}
-                >
-                  Salvar
+                <button className="btn btn-soft btn-block" disabled={!canSave} onClick={() => handleSave(true)}>
+                  Salvar e adicionar outra
                 </button>
               </>
             )}
+            <button className="btn btn-outline btn-block" disabled={saving} onClick={handleCancel}>
+              Cancelar
+            </button>
           </div>
-
-          <button
-            style={{
-              width: '100%',
-              marginTop: 10,
-              padding: 12,
-              borderRadius: 10,
-              border: '1px solid #ccc',
-              background: '#fff',
-              fontSize: 16,
-              cursor: 'pointer',
-            }}
-            disabled={saving}
-            onClick={handleCancel}
-          >
-            Cancelar
-          </button>
         </>
       )}
 
       {message && (
-        <p style={{ color: message.startsWith('Peça salva') ? 'green' : 'crimson' }}>{message}</p>
+        <p
+          className={message.startsWith('Peça salva') ? 'msg msg-ok' : 'msg msg-error'}
+          role={message.startsWith('Peça salva') ? 'status' : 'alert'}
+        >
+          {message}
+        </p>
       )}
     </div>
   )

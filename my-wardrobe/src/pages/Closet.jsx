@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { pathFromUrl } from '../utils/storage'
+import Stars from '../components/Stars'
+import { Hanger, Pencil, Trash } from '../components/icons'
+import FilterButton from '../components/FilterButton'
+import FilterSheet from '../components/FilterSheet'
+import ActiveFilters from '../components/ActiveFilters'
+import { useWardrobeFilters, plural } from '../hooks/useWardrobeFilters'
 
 export default function Closet({ onEdit }) {
   const [items, setItems] = useState([])
@@ -8,6 +14,8 @@ export default function Closet({ onEdit }) {
   const [selected, setSelected] = useState(null)
   const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState('')
+  const [filterOpen, setFilterOpen] = useState(false)
+  const filters = useWardrobeFilters(items)
 
   useEffect(() => {
     supabase
@@ -28,7 +36,8 @@ export default function Closet({ onEdit }) {
     // 1) apaga a linha da tabela (some da lista)
     const { error: dbError } = await supabase.from('items').delete().eq('id', selected.id)
     if (dbError) {
-      setError('Erro ao excluir: ' + dbError.message)
+      console.error(dbError)
+      setError('Não deu para excluir agora. Tente de novo em instantes.')
       setDeleting(false)
       return
     }
@@ -45,104 +54,110 @@ export default function Closet({ onEdit }) {
     setDeleting(false)
   }
 
-  const sheetBtn = {
-    flex: 1,
-    padding: 14,
-    borderRadius: 10,
-    border: 'none',
-    fontSize: 16,
-    cursor: 'pointer',
+  function open(it) {
+    setError('')
+    setSelected(it)
   }
 
   return (
-    <div style={{ padding: 16, paddingBottom: 90 }}>
-      <h2>Meu guarda-roupa</h2>
-      {loading && <p>Carregando...</p>}
-      {!loading && items.length === 0 && <p>Nenhuma peça ainda. Adicione a primeira! 👗</p>}
+    <div className="page">
+      <h1>Meu guarda-roupa</h1>
+      {loading && <p className="muted">Carregando suas peças...</p>}
+      {!loading && items.length === 0 && (
+        <div className="empty">
+          <h2>Seu guarda-roupa está esperando as primeiras peças.</h2>
+          <p>Toque em “Adicionar peça” para começar.</p>
+        </div>
+      )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
-        {items.map((it) => (
-          <div
-            key={it.id}
-            onClick={() => {
-              setError('')
-              setSelected(it)
-            }}
-            style={{
-              background: '#fff0f6',
-              borderRadius: 12,
-              padding: 8,
-              textAlign: 'center',
-              cursor: 'pointer',
-            }}
-          >
-            <img src={it.image_url} style={{ width: '100%', height: 150, objectFit: 'contain' }} />
-            <div style={{ fontSize: 14 }}>
-              {it.category} · {it.color}
-            </div>
-            <div style={{ color: '#fcc419' }}>
-              {'★'.repeat(it.rating)}
-              <span style={{ color: '#ddd' }}>{'★'.repeat(5 - it.rating)}</span>
-            </div>
+      {items.length > 0 && (
+        <>
+          <div className="toolbar">
+            <span className="small muted" aria-live="polite">
+              {plural(filters.filtered.length)}
+            </span>
+            <FilterButton count={filters.activeCount} onClick={() => setFilterOpen(true)} />
           </div>
+          <ActiveFilters active={filters.active} onClear={filters.clear} />
+        </>
+      )}
+
+      {items.length > 0 && filters.filtered.length === 0 && (
+        <div className="empty">
+          <Hanger size={40} />
+          <h2>Nenhuma peça com esses filtros.</h2>
+          <button className="btn btn-soft" style={{ marginTop: 'var(--space-4)' }} onClick={filters.clear}>
+            Limpar filtros
+          </button>
+        </div>
+      )}
+
+      <div className="grid">
+        {filters.filtered.map((it) => (
+          <article className="card" key={it.id}>
+            <div className="photo">
+              <img src={it.image_url} alt={`${it.category} ${it.color}`} />
+            </div>
+            <h3>
+              <button className="card-open" onClick={() => open(it)}>
+                {it.category}
+              </button>
+            </h3>
+            <div className="tags">
+              <span className="tag">{it.category}</span>
+              <span className="tag tag-lilac">{it.color}</span>
+            </div>
+            <div className="card-foot">
+              <Stars value={it.rating} small />
+            </div>
+          </article>
         ))}
       </div>
 
+      {filterOpen && (
+        <FilterSheet
+          filters={filters}
+          resultCount={filters.filtered.length}
+          onClose={() => setFilterOpen(false)}
+        />
+      )}
+
       {selected && (
-        <div
-          onClick={() => !deleting && setSelected(null)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'center',
-            zIndex: 10,
-          }}
-        >
+        <div className="overlay" onClick={() => !deleting && setSelected(null)}>
           <div
+            className="sheet"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${selected.category} ${selected.color}`}
             onClick={(e) => e.stopPropagation()}
-            style={{
-              background: '#fff',
-              width: '100%',
-              maxWidth: 480,
-              borderRadius: '16px 16px 0 0',
-              padding: 16,
-              boxSizing: 'border-box',
-            }}
           >
-            <div style={{ background: '#fff0f6', borderRadius: 12, padding: 8, textAlign: 'center' }}>
-              <img
-                src={selected.image_url}
-                style={{ maxWidth: '100%', maxHeight: 280, objectFit: 'contain' }}
-              />
+            <div className="photo photo-lg">
+              <img src={selected.image_url} alt={`${selected.category} ${selected.color}`} />
             </div>
-            <p style={{ textAlign: 'center', margin: '8px 0' }}>
-              {selected.category} · {selected.color} ·{' '}
-              <span style={{ color: '#fcc419' }}>{'★'.repeat(selected.rating)}</span>
-            </p>
+            <div className="tags">
+              <span className="tag">{selected.category}</span>
+              <span className="tag tag-lilac">{selected.color}</span>
+            </div>
+            <div className="stars-wrap">
+              <Stars value={selected.rating} />
+            </div>
 
-            {error && <p style={{ color: 'crimson' }}>{error}</p>}
+            {error && (
+              <p className="msg msg-error" role="alert">
+                {error}
+              </p>
+            )}
 
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button
-                style={{ ...sheetBtn, background: '#ff8fb8' }}
-                disabled={deleting}
-                onClick={() => onEdit(selected)}
-              >
-                ✏️ Editar
+            <div className="btn-row">
+              <button className="btn btn-soft" disabled={deleting} onClick={() => onEdit(selected)}>
+                <Pencil /> Editar peça
               </button>
-              <button
-                style={{ ...sheetBtn, background: '#ffe3e3', color: '#c92a2a' }}
-                disabled={deleting}
-                onClick={handleDelete}
-              >
-                {deleting ? 'Excluindo...' : '🗑️ Excluir'}
+              <button className="btn btn-danger" disabled={deleting} onClick={handleDelete}>
+                <Trash /> {deleting ? 'Excluindo...' : 'Excluir peça'}
               </button>
             </div>
             <button
-              style={{ ...sheetBtn, width: '100%', marginTop: 10, background: '#f1f3f5' }}
+              className="btn btn-outline btn-block"
               disabled={deleting}
               onClick={() => setSelected(null)}
             >

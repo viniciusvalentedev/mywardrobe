@@ -1,0 +1,66 @@
+/* My Wardrobe — identidade visual (tema rosa fofo)
+   Uso: importe este arquivo no main.jsx e, para o modo escuro,
+   coloque data-theme="dark" no <html>. */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700&display=swap');
+
+:root,
+[data-theme="light"] {
+  --bg: #fff7fa;
+  --surface: #ffffff;
+  --tint: #ffeaf1;
+  --blush: #ffd3e2;
+  --petal: #ffb3cd;
+  --brand: #ff8fb5;
+  --rose: #e5568a;
+  --primary: #c93a72;
+  --primary-hover: #a82a5c;
+  --on-primary: #ffffff;
+  --lilac: #e6dcff;
+  --butter: #fff0c2;
+  --ink: #4a1d33;
+  --muted: #8a5a70;
+  --line: #ffd3e2;
+  --line-strong: #c4668a;
+  --danger: #b3243f;
+  --focus: #c93a72;
+  --shadow-soft: 0 8px 24px rgba(201, 58, 114, 0.14);
+  --shadow-pop: 0 14px 32px rgba(201, 58, 114, 0.22);
+  --font-display: "Fredoka", "Nunito", ui-rounded, system-ui, sans-serif;
+  --font-body: "Nunito", ui-rounded, system-ui, sans-serif;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px;
+  --radius-sm: 10px; --radius-md: 16px; --radius-lg: 24px;
+  --radius-xl: 32px; --radius-pill: 999px;
+}
+
+[data-theme="dark"] {
+  --bg: #2b1522;
+  --surface: #3a1d2e;
+  --tint: #4a263a;
+  --blush: #5c3248;
+  --petal: #8c4a68;
+  --brand: #ff8fb5;
+  --rose: #d2578a;
+  --primary: #ff8fb5;
+  --primary-hover: #ffa6c3;
+  --on-primary: #3a1226;
+  --lilac: #5a4a8c;
+  --butter: #6b5624;
+  --ink: #ffeaf1;
+  --muted: #e0b3c7;
+  --line: #5c3248;
+  --line-strong: #b06a8a;
+  --danger: #ff8a9b;
+  --focus: #ffa6c3;
+  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-pop: 0 14px 32px rgba(0, 0, 0, 0.5);
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 16px/24px var(--font-body);
+}
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; margin: 0; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }

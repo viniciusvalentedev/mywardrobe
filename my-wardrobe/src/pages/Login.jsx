@@ -37,7 +37,7 @@ export default function Login() {
 
     if (error) {
       if (error.message.includes('Invalid login credentials')) {
-        setMessage('Usuário ou senha incorretos.')
+        setMessage('Usuário ou senha não conferem. Confira e tente de novo.')
       } else if (error.message.includes('already registered')) {
         setMessage('Esse nome de usuário já existe.')
       } else {
@@ -47,64 +47,68 @@ export default function Login() {
     setLoading(false)
   }
 
-  const input = {
-    display: 'block',
-    width: '100%',
-    boxSizing: 'border-box',
-    padding: 12,
-    marginBottom: 12,
-    borderRadius: 8,
-    border: '1px solid #ccc',
-    fontSize: 16,
-  }
-
   return (
-    <div style={{ maxWidth: 360, margin: '60px auto', padding: 16, fontFamily: 'sans-serif' }}>
-      <h2>My Wardrobe</h2>
-      <p>{mode === 'login' ? 'Entre na sua conta' : 'Crie sua conta'}</p>
+    <div className="auth">
+      <div className="auth-brand">
+        <img className="brand-mark" src="/my-wardrobe-mark.svg" alt="" />
+        <span className="brand-name">My Wardrobe</span>
+      </div>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          style={input}
-          type="text"
-          placeholder="Nome de usuário"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          autoCapitalize="none"
-          autoCorrect="off"
-          required
-        />
-        <input
-          style={input}
-          type="password"
-          placeholder="Senha (mínimo 6 caracteres)"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          minLength={6}
-          required
-        />
-        <button
-          style={{ ...input, background: '#ff8fb8', border: 'none', cursor: 'pointer' }}
-          disabled={loading}
-        >
-          {loading ? 'Aguarde...' : mode === 'login' ? 'Entrar' : 'Criar conta'}
-        </button>
-      </form>
+      <div className="auth-panel">
+        <h1>{mode === 'login' ? 'Que bom te ver por aqui' : 'Vamos começar'}</h1>
+        <p>{mode === 'login' ? 'Entre na sua conta' : 'Crie sua conta'}</p>
 
-      {message && <p style={{ color: 'crimson' }}>{message}</p>}
+        <form onSubmit={handleSubmit}>
+          <label className="field">
+            <span className="field-label">Nome de usuário</span>
+            <input
+              className="input"
+              type="text"
+              placeholder="Ex.: gigi"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              autoCapitalize="none"
+              autoCorrect="off"
+              required
+            />
+          </label>
+          <label className="field">
+            <span className="field-label">Senha</span>
+            <input
+              className="input"
+              type="password"
+              placeholder="Mínimo de 6 caracteres"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={6}
+              required
+            />
+          </label>
+          <button className="btn btn-primary btn-block" disabled={loading}>
+            {loading ? 'Aguarde um instante...' : mode === 'login' ? 'Entrar' : 'Criar minha conta'}
+          </button>
+        </form>
 
-      <p>
-        {mode === 'login' ? 'Ainda não tem conta? ' : 'Já tem conta? '}
-        <button
-          style={{ background: 'none', border: 'none', color: '#d6336c', cursor: 'pointer', fontSize: 16 }}
-          onClick={() => {
-            setMode(mode === 'login' ? 'signup' : 'login')
-            setMessage('')
-          }}
-        >
-          {mode === 'login' ? 'Cadastre-se' : 'Entrar'}
-        </button>
-      </p>
+        {message && (
+          <p className="msg msg-error" role="alert">
+            {message}
+          </p>
+        )}
+
+        <p className="auth-switch">
+          {mode === 'login' ? 'Ainda não tem conta? ' : 'Já tem conta? '}
+          <button
+            type="button"
+            className="link-btn"
+            onClick={() => {
+              setMode(mode === 'login' ? 'signup' : 'login')
+              setMessage('')
+            }}
+          >
+            {mode === 'login' ? 'Cadastre-se' : 'Entrar'}
+          </button>
+        </p>
+      </div>
     </div>
   )
 }

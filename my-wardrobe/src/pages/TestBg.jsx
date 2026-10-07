@@ -45,21 +45,11 @@ export default function TestBg() {
     }
   }
 
-  const box = {
-    flex: 1,
-    minWidth: 0,
-    borderRadius: 12,
-    padding: 8,
-    textAlign: 'center',
-    border: '1px solid #ccc',
-  }
-  const img = { width: '100%', borderRadius: 8 }
-
   return (
-    <div style={{ maxWidth: 700, margin: '0 auto', padding: 16, fontFamily: 'sans-serif' }}>
-      <h2>Teste: remover fundo</h2>
+    <div className="page page-narrow" style={{ maxWidth: 700 }}>
+      <h1>Teste: remover fundo</h1>
 
-      <input type="file" accept="image/*" onChange={handleFile} />
+      <input className="input" type="file" accept="image/*" onChange={handleFile} />
 
       <p>{status}</p>
       {seconds && <p><b>Tempo:</b> {seconds}s</p>}
@@ -69,14 +59,14 @@ export default function TestBg() {
         <input type="color" value={bg} onChange={(e) => setBg(e.target.value)} />
       </label>
 
-      <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-        <div style={box}>
+      <div className="compare">
+        <div>
           <p>Antes</p>
-          {original && <img src={original} style={img} />}
+          {original && <img src={original} alt="Foto original" />}
         </div>
-        <div style={{ ...box, background: bg }}>
+        <div style={{ background: bg }}>
           <p>Depois</p>
-          {result && <img src={result} style={img} />}
+          {result && <img src={result} alt="Foto sem fundo" />}
         </div>
       </div>
     </div>
