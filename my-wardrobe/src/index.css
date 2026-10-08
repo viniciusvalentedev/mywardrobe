@@ -72,6 +72,26 @@ button, input { font-family: var(--font-body); }
 }
 .tab[aria-current="page"] { background: var(--blush); color: var(--ink); }
 .tab:hover { border-color: var(--line-strong); }
+/* quatro abas não cabem lado a lado no celular: ícone em cima, rótulo embaixo,
+   as quatro com a mesma largura */
+@media (max-width: 520px) {
+  .tabbar { gap: 0; padding: var(--space-2) var(--space-1); }
+  .tab {
+    flex: 1 1 0;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 2px;
+    min-width: 0;
+    padding: 8px 0;
+    font-size: 12px;
+    line-height: 14px;
+    text-align: center;
+  }
+}
+/* telas bem estreitas: "Guarda-roupa" cabe inteiro, sem quebrar no hífen */
+@media (max-width: 340px) {
+  .tab { font-size: 11px; }
+}
 
 /* ---------- Botões ---------- */
 
@@ -462,3 +482,390 @@ button, input { font-family: var(--font-body); }
 }
 
 .empty svg { color: var(--rose); }
+
+/* ---------- Montar conjunto ---------- */
+
+.outfit-bar {
+  position: sticky;
+  top: var(--space-2);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+}
+.outfit-bar-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+.outfit-rating { position: relative; display: inline-flex; align-items: center; gap: var(--space-2); }
+.outfit-rating strong { font-size: 18px; line-height: 24px; }
+
+.slot { --piece-w: 132px; --piece-h: 116px; margin-top: var(--space-5); }
+/* vestido ocupa Cima + Baixo: um espaço com a altura dos dois */
+.slot-dress { --piece-w: 156px; --piece-h: 252px; }
+.slot-head { display: flex; align-items: center; gap: var(--space-2); min-height: 44px; margin-bottom: var(--space-2); }
+.slot-title { font-size: 20px; line-height: 26px; }
+.slot-tools { display: flex; align-items: center; gap: var(--space-1); margin-left: auto; }
+.icon-btn-lock { color: var(--muted); }
+.icon-btn-lock[aria-pressed="true"] { background: var(--blush); color: var(--primary); }
+
+/* Me surpreenda */
+.surprise { margin-top: var(--space-4); }
+.surprise .chip-row { margin-bottom: var(--space-1); }
+.surprise .msg { margin-bottom: 0; }
+.btn-surprise { background: var(--blush); color: var(--ink); border-color: var(--primary); }
+.btn-surprise svg { color: var(--primary); }
+.btn-surprise:hover:not(:disabled) { background: var(--tint); }
+/* durante o sorteio as fileiras não aceitam toque */
+.rolling { pointer-events: none; }
+.slot-note { margin: 0 0 var(--space-2); }
+.slot-empty {
+  margin: 0;
+  padding: var(--space-4);
+  border: 2px dashed var(--line);
+  border-radius: var(--radius-md);
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 20px;
+  text-align: center;
+}
+
+/* fileira que desliza: vai até a borda da tela e a peça para sempre no meio */
+.carousel {
+  position: relative;
+  display: flex;
+  gap: var(--space-3);
+  margin: 0 calc(-1 * var(--space-4));
+  padding: 6px calc(50% + var(--space-4) - var(--piece-w) / 2);
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+.carousel > li { flex: none; scroll-snap-align: center; }
+.piece {
+  display: block;
+  width: var(--piece-w);
+  padding: var(--space-2);
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  background: var(--tint);
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+.piece img { display: block; width: 100%; height: var(--piece-h); object-fit: contain; }
+.piece[aria-pressed="true"] { border-color: var(--primary); }
+.carousel:has(.piece[aria-pressed="true"]) .piece:not([aria-pressed="true"]) { opacity: 0.5; }
+.slot-off .carousel { opacity: 0.45; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .carousel { scroll-behavior: smooth; }
+}
+
+/* ---------- Meus conjuntos ---------- */
+
+/* cartão de conjunto é mais largo que o de peça: uma coluna no celular */
+.outfit-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+
+.outfit-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--tint);
+  border-radius: var(--radius-md);
+}
+.outfit-piece { display: block; width: 100%; height: 104px; object-fit: contain; }
+/* vestido no lugar de Cima + Baixo: a altura dos dois mais o espaço entre eles */
+.outfit-piece-dress { height: calc(208px + var(--space-2)); }
+.outfit-piece-shoes, .outfit-piece-extra { height: 72px; }
+
+/* nota + três botões não cabem numa linha nos celulares mais estreitos */
+.outfit-grid .card-foot { flex-wrap: wrap; gap: var(--space-1) var(--space-2); }
+.outfit-grid .card-actions { margin-left: auto; }
+
+/* filtro por ocasião: uma linha só, que desliza até a borda da tela */
+.chip-row {
+  display: flex;
+  gap: var(--space-2);
+  margin: 0 calc(-1 * var(--space-4)) var(--space-3);
+  padding: 6px var(--space-4);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.chip-row > * { flex: none; }
+
+.card-actions { display: flex; gap: var(--space-1); margin-right: calc(-1 * var(--space-2)); }
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  cursor: pointer;
+}
+.icon-btn:hover:not(:disabled) { background: var(--tint); }
+.icon-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.icon-btn-heart { color: var(--primary); }
+.icon-btn-edit { color: var(--primary); }
+.icon-btn-danger { color: var(--danger); }
+.icon-btn svg { width: 24px; height: 24px; }
+
+/* ---------- Usei hoje e aviso flutuante ---------- */
+
+.card-wear { margin-top: var(--space-3); }
+.log-day { margin: calc(-1 * var(--space-2)) 0 var(--space-4); }
+.cap-first::first-letter { text-transform: uppercase; }
+
+.toast {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 96px;
+  z-index: 30;
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--space-4);
+  pointer-events: none;
+}
+.toast-msg {
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-pill);
+  background: var(--ink);
+  color: var(--bg);
+  font-weight: 700;
+  box-shadow: var(--shadow-pop);
+}
+
+/* ---------- Calendário ---------- */
+
+.cal-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-3); }
+.cal-title { font-size: 22px; line-height: 28px; text-align: center; }
+
+.cal-weekdays, .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--space-1); }
+.cal-weekdays { margin-bottom: var(--space-1); }
+.cal-weekdays span { color: var(--muted); font-size: 13px; line-height: 16px; font-weight: 700; text-align: center; }
+/* deslizar para os lados troca de mês; para cima e para baixo rola a página */
+.cal-grid { touch-action: pan-y; }
+
+.cal-day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  height: 68px;
+  padding: 4px 2px;
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.cal-day.has-look { background: var(--tint); }
+.cal-day[aria-current="date"] { border-color: var(--primary); }
+.cal-day[aria-current="date"] .cal-num { color: var(--primary); }
+.cal-day:hover:not(:disabled) { border-color: var(--line-strong); }
+.cal-day:disabled { background: transparent; color: var(--muted); opacity: 0.6; cursor: default; }
+.cal-thumb { display: block; width: 100%; min-height: 0; flex: 1; object-fit: contain; }
+.cal-dot { width: 8px; height: 8px; margin: auto 0 6px; border-radius: var(--radius-pill); background: var(--primary); }
+.cal-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: var(--radius-pill);
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.cal-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 44px;
+  margin-top: var(--space-4);
+}
+
+/* painel do dia */
+.day-today { margin: 0; }
+.day-empty { margin: var(--space-4) 0; padding: var(--space-4); border: 2px dashed var(--line); border-radius: var(--radius-md); text-align: center; }
+.day-empty p { margin: 0; }
+.look {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  border: 2px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+.look .outfit-stack { flex: 0 0 112px; }
+.look-info { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); min-width: 0; }
+.day-add { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-5); }
+.day-add h3 { margin-bottom: var(--space-1); }
+.day-add p { margin: 0; }
+.saved-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-2);
+  border: 2px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+.saved-row:hover:not(:disabled) { border-color: var(--line-strong); }
+.saved-row:disabled { opacity: 0.45; cursor: not-allowed; }
+.saved-row .outfit-stack { flex: 0 0 72px; }
+
+/* pilha de peças compacta (painel do dia) */
+.outfit-stack-sm { gap: var(--space-1); padding: var(--space-2); }
+.outfit-stack-sm .outfit-piece { height: 52px; }
+.outfit-stack-sm .outfit-piece-dress { height: calc(104px + var(--space-1)); }
+.outfit-stack-sm .outfit-piece-shoes, .outfit-stack-sm .outfit-piece-extra { height: 36px; }
+.saved-row .outfit-stack-sm .outfit-piece { height: 32px; }
+.saved-row .outfit-stack-sm .outfit-piece-dress { height: calc(64px + var(--space-1)); }
+.saved-row .outfit-stack-sm .outfit-piece-shoes, .saved-row .outfit-stack-sm .outfit-piece-extra { height: 24px; }
+
+/* ---------- Estatísticas ---------- */
+
+.stat-card {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+}
+.stat-card > h2 { font-size: 20px; line-height: 26px; margin-bottom: var(--space-3); }
+.stat-card > h2:has(+ .stat-hint) { margin-bottom: var(--space-1); }
+.stat-hint { margin: 0 0 var(--space-3); }
+.stat-note { margin: 0; }
+.stat-foot { margin: var(--space-3) 0 0; }
+.stat-happy { margin: 0; padding: var(--space-4); border-radius: var(--radius-md); background: var(--tint); font-weight: 700; text-align: center; }
+.stat-card .btn-row { margin-top: var(--space-3); }
+.stats .empty { margin: var(--space-4) auto 0; }
+
+/* esqueleto de carregamento */
+.skeleton-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.skeleton { display: block; height: 18px; border-radius: var(--radius-sm); background: var(--tint); animation: skeleton-pulse 1.2s ease-in-out infinite; }
+.skeleton:nth-child(2n) { width: 82%; }
+.skeleton:nth-child(3n) { width: 64%; }
+@keyframes skeleton-pulse { 50% { opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}
+
+/* resumo: três números lado a lado */
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
+.kpi { display: flex; flex-direction: column; gap: 2px; padding: var(--space-3) var(--space-2); border-radius: var(--radius-md); background: var(--tint); text-align: center; }
+.kpi strong { font-family: var(--font-display); font-weight: 600; font-size: 30px; line-height: 34px; }
+.kpi span { color: var(--muted); font-size: 13px; line-height: 16px; }
+
+/* foto de peça nos blocos */
+.stat-thumb { display: block; padding: var(--space-1); border-radius: var(--radius-sm); background: var(--tint); }
+.stat-thumb img { display: block; width: 100%; height: 100%; object-fit: contain; }
+
+/* ranking de peças */
+.rank { display: flex; flex-direction: column; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.rank li { display: flex; align-items: center; gap: var(--space-3); }
+.rank-pos { flex: none; width: 20px; color: var(--muted); font-family: var(--font-display); font-weight: 600; font-size: 18px; text-align: center; }
+.rank li:first-child .rank-pos { color: var(--primary); }
+.rank .stat-thumb { flex: none; width: 56px; height: 56px; }
+.rank-name { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.rank-value { flex: none; font-weight: 700; }
+
+.thumb-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.thumb-grid .stat-thumb { aspect-ratio: 1; }
+
+/* o look já está dentro de um cartão: sem segunda borda */
+.stat-look { margin-top: 0; padding: 0; border: 0; }
+
+/* barras horizontais: uma série só; a maior categoria no rosa forte, o resto discreto */
+.bars { display: grid; grid-template-columns: max-content minmax(0, 1fr) max-content; gap: var(--space-2) var(--space-3); align-items: center; margin: 0; padding: 0; list-style: none; }
+.bars li { display: contents; }
+.bar-plot { display: block; }
+.bar-fill { display: block; min-width: 4px; height: 12px; border-radius: 0 4px 4px 0; background: var(--petal); }
+.bar-value { font-weight: 700; text-align: right; }
+.bars .is-top .bar-fill { background: var(--primary); }
+.bars .is-top .bar-label { font-weight: 700; }
+
+/* cores: a cor real da peça, com contorno para as claras não sumirem */
+.color-dot { flex: none; display: inline-block; width: 20px; height: 20px; border: 2px solid var(--line-strong); border-radius: var(--radius-pill); }
+.color-dot-unknown { background: repeating-linear-gradient(45deg, var(--tint) 0 4px, var(--blush) 4px 8px); }
+.color-bar { display: flex; gap: 2px; height: 16px; margin-bottom: var(--space-3); }
+.color-bar span { min-width: 6px; border-radius: 4px; box-shadow: inset 0 0 0 1px var(--line-strong); }
+.color-list, .worn-list { display: flex; flex-direction: column; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.color-list li, .worn-list li { display: flex; align-items: center; gap: var(--space-2); }
+.color-name { display: flex; align-items: center; flex: 1; flex-wrap: wrap; gap: var(--space-2); min-width: 0; }
+.color-pct { flex: none; width: 44px; font-weight: 700; text-align: right; }
+.color-list .is-top .color-name { font-weight: 700; }
+.worn-colors { margin-top: var(--space-4); padding-top: var(--space-4); border-top: 2px solid var(--line); }
+.worn-colors h3 { font-size: 18px; line-height: 24px; margin-bottom: var(--space-1); }
+
+/* notas */
+.rating-pair { display: flex; flex-direction: column; gap: var(--space-3); margin: 0; }
+.rating-pair dt { color: var(--muted); font-size: 14px; line-height: 20px; }
+.rating-pair dd { margin: 0; }
+
+/* ---------- Calendário -> Estatísticas ---------- */
+
+.stats-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  margin-top: var(--space-5);
+  padding: var(--space-4);
+  border: 2px solid var(--primary);
+  border-radius: var(--radius-lg);
+  background: var(--blush);
+  color: var(--ink);
+  font-size: 16px;
+  text-align: left;
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+}
+.stats-link:hover { box-shadow: var(--shadow-pop); }
+.stats-link-icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-pill);
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.stats-link-icon svg { width: 24px; height: 24px; }
+.stats-link-text { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.stats-link-text strong { font-family: var(--font-display); font-weight: 600; font-size: 20px; line-height: 26px; }
+.stats-link > svg { flex: none; color: var(--primary); }
+
+/* voltar no topo de uma tela */
+.back-link { display: inline-flex; align-items: center; gap: var(--space-1); margin: 0 0 var(--space-2) calc(-1 * var(--space-2)); min-height: 44px; text-decoration: none; }

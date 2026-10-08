@@ -17,6 +17,65 @@ export function Star({ filled }) {
   )
 }
 
+export function Heart({ filled, size = 24 }) {
+  return (
+    <svg {...base} width={size} height={size} fill={filled ? 'currentColor' : 'none'}>
+      <path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z" />
+    </svg>
+  )
+}
+
+export function Sparkles() {
+  return (
+    <svg {...base} width="20" height="20">
+      <path d="M11 4l1.8 5.2L18 11l-5.2 1.8L11 18l-1.8-5.2L4 11l5.2-1.8z" />
+      <path d="M19 3v4M17 5h4M19 17v4M17 19h4" />
+    </svg>
+  )
+}
+
+export function Lock({ closed }) {
+  return (
+    <svg {...base} width="20" height="20">
+      <rect x="4" y="11" width="16" height="10" rx="2.5" />
+      <path d={closed ? 'M8 11V7a4 4 0 0 1 8 0v4' : 'M8 11V7a4 4 0 0 1 7.8-1.2'} />
+    </svg>
+  )
+}
+
+export function CalendarIcon({ size = 20 }) {
+  return (
+    <svg {...base} width={size} height={size}>
+      <rect x="3.5" y="5" width="17" height="15.5" rx="3" />
+      <path d="M3.5 10h17M8 3v4M16 3v4" />
+    </svg>
+  )
+}
+
+export function ChartIcon() {
+  return (
+    <svg {...base} width="20" height="20">
+      <path d="M3 20h18M7 20v-8M12 20V5M17 20v-5" />
+    </svg>
+  )
+}
+
+export function Chevron({ left }) {
+  return (
+    <svg {...base} width="20" height="20">
+      <path d={left ? 'M15 5l-7 7 7 7' : 'M9 5l7 7-7 7'} />
+    </svg>
+  )
+}
+
+export function Shirt({ size = 20 }) {
+  return (
+    <svg {...base} width={size} height={size}>
+      <path d="M8 3L3 5.5 4.5 10 7 9v11h10V9l2.5 1L21 5.5 16 3a4 4 0 0 1-8 0z" />
+    </svg>
+  )
+}
+
 export function Hanger({ size = 20 }) {
   return (
     <svg {...base} width={size} height={size}>

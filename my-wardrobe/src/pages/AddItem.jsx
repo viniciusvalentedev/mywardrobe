@@ -2,28 +2,9 @@ import { useRef, useState } from 'react'
 import { removeBackground } from '@imgly/background-removal'
 import { supabase } from '../lib/supabase'
 import { pathFromUrl } from '../utils/storage'
+import { CATEGORIES } from '../utils/outfits'
+import { COLORS } from '../utils/colors'
 import { Camera, Image, Star } from '../components/icons'
-
-const CATEGORIES = [
-  'Camiseta', 'Blusa', 'Regata', 'Casaco', 'Calça', 'Short',
-  'Saia', 'Vestido', 'Tênis', 'Sapato', 'Sandália', 'Acessório',
-]
-
-const COLORS = [
-  { name: 'Preto', hex: '#1a1a1a' },
-  { name: 'Branco', hex: '#ffffff' },
-  { name: 'Cinza', hex: '#9e9e9e' },
-  { name: 'Bege', hex: '#e8d5b7' },
-  { name: 'Marrom', hex: '#7b4a2d' },
-  { name: 'Vermelho', hex: '#e03131' },
-  { name: 'Rosa', hex: '#ff8fb8' },
-  { name: 'Laranja', hex: '#f08c00' },
-  { name: 'Amarelo', hex: '#fcc419' },
-  { name: 'Verde', hex: '#2f9e44' },
-  { name: 'Azul', hex: '#1c7ed6' },
-  { name: 'Roxo', hex: '#7048e8' },
-  { name: 'Jeans', hex: '#4a6fa5' },
-]
 
 async function resizeImage(file, maxSize = 1024) {
   const bitmap = await createImageBitmap(file)
