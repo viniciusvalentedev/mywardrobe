@@ -5,7 +5,8 @@ import OutfitRating from '../components/OutfitRating'
 import OutfitStack from '../components/OutfitStack'
 import Chip from '../components/Chip'
 import Toast from '../components/Toast'
-import { Heart, Pencil, Shirt, Trash } from '../components/icons'
+import ShareOutfit from '../components/ShareOutfit'
+import { Heart, Pencil, Share, Shirt, Trash } from '../components/icons'
 import { useToast } from '../hooks/useToast'
 import { OCCASIONS, outfitRating } from '../utils/outfits'
 import { todayLocal } from '../utils/dates'
@@ -23,6 +24,7 @@ export default function Outfits({ onBuild, onEdit }) {
   const [error, setError] = useState('')
   const [wornToday, setWornToday] = useState(() => new Set()) // ids dos conjuntos já registrados hoje
   const [loggingId, setLoggingId] = useState(null)
+  const [sharing, setSharing] = useState(null) // conjunto aberto no painel de compartilhar
   const toast = useToast()
 
   useEffect(() => {
@@ -191,6 +193,13 @@ export default function Outfits({ onBuild, onEdit }) {
           return (
             <article className="card" key={o.id}>
               <OutfitStack links={o.outfit_items} />
+              <button
+                className="icon-btn card-share"
+                aria-label={`Compartilhar ${titleOf(o)}`}
+                onClick={() => setSharing(o)}
+              >
+                <Share />
+              </button>
               <h3>{titleOf(o)}</h3>
               {o.occasions?.length > 0 && (
                 <div className="tags">
@@ -238,6 +247,7 @@ export default function Outfits({ onBuild, onEdit }) {
       </div>
 
       <Toast message={toast.message} />
+      {sharing && <ShareOutfit outfit={sharing} onClose={() => setSharing(null)} />}
     </div>
   )
 }

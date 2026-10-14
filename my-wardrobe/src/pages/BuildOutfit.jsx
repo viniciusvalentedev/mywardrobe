@@ -5,7 +5,8 @@ import SlotCarousel from '../components/SlotCarousel'
 import OutfitRating from '../components/OutfitRating'
 import Chip from '../components/Chip'
 import Toast from '../components/Toast'
-import { Hanger, Sparkles } from '../components/icons'
+import ShareOutfit from '../components/ShareOutfit'
+import { Hanger, Share, Sparkles } from '../components/icons'
 import { useToast } from '../hooks/useToast'
 import { formatDay, todayLocal } from '../utils/dates'
 import {
@@ -73,6 +74,7 @@ export default function BuildOutfit({ outfit, logDate, onDone, onLogged, onAddIt
   const [loggedKey, setLoggedKey] = useState(null) // combinação já registrada hoje nesta tela
   const [logError, setLogError] = useState('')
   const toast = useToast()
+  const [sharing, setSharing] = useState(null) // retrato do conjunto aberto no painel de compartilhar
 
   useEffect(() => () => clearInterval(rollTimer.current), [])
 
@@ -279,6 +281,14 @@ export default function BuildOutfit({ outfit, logDate, onDone, onLogged, onAddIt
     }
   }
 
+  // Compartilha o que está na tela agora (nome, ocasiões e peças), mesmo antes de salvar.
+  function openShare() {
+    const links = Object.entries(pick)
+      .filter(([, item]) => item)
+      .map(([slot, item]) => ({ slot, item }))
+    setSharing({ name: name.trim(), occasions, outfit_items: links })
+  }
+
   function handleLeave() {
     if (dirty && !window.confirm('Sair sem salvar? As alterações neste conjunto serão perdidas.')) return
     onDone()
@@ -427,12 +437,18 @@ export default function BuildOutfit({ outfit, logDate, onDone, onLogged, onAddIt
             </p>
           </div>
         )}
+        {editing && items.length > 0 && (
+          <button className="btn btn-soft btn-block" disabled={count < MIN_SLOTS || rolling} onClick={openShare}>
+            <Share /> Compartilhar
+          </button>
+        )}
         <button className="btn btn-outline btn-block" onClick={handleLeave}>
           {logMode ? 'Voltar para o calendário' : editing ? 'Cancelar' : 'Voltar para meus conjuntos'}
         </button>
       </div>
 
       <Toast message={toast.message} />
+      {sharing && <ShareOutfit outfit={sharing} onClose={() => setSharing(null)} />}
 
       {asking && (
         <div className="overlay" onClick={closeDialog}>

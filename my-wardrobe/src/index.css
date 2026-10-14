@@ -903,3 +903,109 @@ button, input { font-family: var(--font-body); }
 .install-hint .icon-btn { flex: none; color: var(--ink); }
 /* na tela de login não há cabeçalho por cima */
 #root > .install-hint { margin-top: calc(var(--space-3) + env(safe-area-inset-top, 0px)); }
+
+/* ---------- Compartilhar conjunto ---------- */
+
+/* botão no canto das peças: o rodapé do cartão já está cheio */
+.card-share { position: absolute; top: var(--space-5); right: var(--space-5); background: var(--surface); color: var(--primary); }
+
+.share-formats { margin-top: var(--space-3); }
+.share-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: min(52vh, 420px);
+  aspect-ratio: 4 / 5;
+  max-width: 100%;
+  margin: var(--space-4) auto 0;
+  overflow: hidden;
+  background: var(--tint);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+.share-preview-story { aspect-ratio: 9 / 16; }
+.share-preview img { display: block; width: 100%; height: 100%; object-fit: contain; -webkit-touch-callout: default; }
+.share-preview p { margin: 0; padding: var(--space-4); }
+
+/* Modelo da imagem: fora da tela, em pixels fixos, sempre com as cores do tema claro. */
+.share-offscreen { position: fixed; top: 0; left: -20000px; pointer-events: none; }
+.share-card {
+  --surface: #ffffff;
+  --tint: #ffeaf1;
+  --blush: #ffd3e2;
+  --petal: #ffb3cd;
+  --rose: #e5568a;
+  --primary: #c93a72;
+  --lilac: #e6dcff;
+  --butter: #fff0c2;
+  --ink: #4a1d33;
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  width: 1080px;
+  height: 1350px;
+  padding: 72px 64px 48px;
+  overflow: hidden;
+  background: linear-gradient(165deg, var(--tint), var(--blush));
+  color: var(--ink);
+  font: 700 32px/40px var(--font-body);
+}
+/* stories: o Instagram cobre o topo e o rodapé com a própria interface */
+.share-card-story { height: 1920px; padding: 220px 64px 200px; }
+.share-card > * { position: relative; }
+
+.share-card > .share-blob { position: absolute; border-radius: 50%; opacity: 0.7; }
+.share-blob-a { top: -130px; left: -130px; width: 360px; height: 360px; background: var(--lilac); }
+.share-blob-b { right: -150px; bottom: -150px; width: 420px; height: 420px; background: var(--butter); }
+.share-blob-c { top: -70px; right: -70px; width: 200px; height: 200px; background: var(--petal); }
+.share-card > .share-deco { position: absolute; color: var(--rose); opacity: 0.55; }
+.share-deco svg { display: block; width: 100%; height: 100%; }
+.share-deco-a { top: 150px; right: 56px; width: 60px; height: 60px; }
+.share-deco-b { bottom: 150px; left: 52px; width: 44px; height: 44px; }
+.share-card-story .share-deco-a { top: 150px; right: 150px; }
+.share-card-story .share-deco-b { bottom: 290px; }
+
+.share-title {
+  max-width: 100%;
+  font: 600 76px/88px var(--font-display);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.share-title-long { font-size: 58px; line-height: 68px; }
+
+.share-pieces {
+  flex: 1;
+  align-self: stretch;
+  display: flex;
+  gap: 32px;
+  min-height: 0;
+  padding: 48px;
+  box-sizing: border-box;
+  background: var(--surface);
+  border-radius: 56px;
+  box-shadow: 0 16px 40px rgba(201, 58, 114, 0.16);
+}
+.share-col { flex: 1; display: flex; flex-direction: column; gap: 32px; min-width: 0; }
+/* a coluna de Cima + Baixo (ou vestido) é a principal */
+.share-col-main { flex: 1.5; }
+.share-piece { position: relative; flex: 1; min-height: 0; }
+.share-piece img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; }
+
+.share-meta { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+.share-rating { display: flex; align-items: center; gap: 16px; font: 600 44px/48px var(--font-display); }
+.share-rating .stars { gap: 6px; }
+.share-rating .stars svg { width: 48px; height: 48px; }
+.share-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
+.share-tags span { padding: 10px 28px; border-radius: 999px; background: var(--surface); }
+
+.share-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--primary);
+  font: 600 30px/36px var(--font-display);
+}
+.share-brand img { display: block; width: 52px; height: 52px; }
