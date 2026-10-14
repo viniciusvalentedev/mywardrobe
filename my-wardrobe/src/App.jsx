@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
+import { API_CACHE, IMAGE_CACHE } from './lib/cacheNames'
+import { useOffline } from './hooks/useOffline'
 import Login from './pages/Login'
 import Closet from './pages/Closet'
 import AddItem from './pages/AddItem'
@@ -7,7 +9,9 @@ import Outfits from './pages/Outfits'
 import BuildOutfit from './pages/BuildOutfit'
 import Calendar from './pages/Calendar'
 import Stats from './pages/Stats'
+import Offline from './pages/Offline'
 import Brand from './components/Brand'
+import InstallHint from './components/InstallHint'
 import { CalendarIcon, Hanger, Plus, Shirt } from './components/icons'
 
 // Estatísticas é a única tela com endereço próprio: abre por link direto e
@@ -25,10 +29,18 @@ export default function App() {
   const [logDate, setLogDate] = useState(null)
   const [calendarDay, setCalendarDay] = useState(null)
   const [calendarToast, setCalendarToast] = useState('')
+  const offline = useOffline()
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session))
-    const { data: listener } = supabase.auth.onAuthStateChange((_e, s) => setSession(s))
+    const { data: listener } = supabase.auth.onAuthStateChange((event, s) => {
+      setSession(s)
+      // saiu da conta: o que o service worker guardou dela não fica no aparelho
+      if (event === 'SIGNED_OUT' && 'caches' in window) {
+        caches.delete(API_CACHE)
+        caches.delete(IMAGE_CACHE)
+      }
+    })
     return () => listener.subscription.unsubscribe()
   }, [])
 
@@ -47,8 +59,15 @@ export default function App() {
     if (tab !== 'stats' && onStatsUrl()) clearStatsUrl()
   }, [tab])
 
+  if (offline) return <Offline />
   if (session === undefined) return <p className="page muted">Carregando...</p>
-  if (!session) return <Login />
+  if (!session)
+    return (
+      <>
+        <InstallHint />
+        <Login />
+      </>
+    )
 
   function goCloset() {
     setEditing(null)
@@ -82,6 +101,8 @@ export default function App() {
           Sair ({session.user.user_metadata?.username})
         </button>
       </header>
+
+      <InstallHint />
 
       <main>
         {tab === 'closet' && (

@@ -138,6 +138,15 @@ export function Sliders() {
   )
 }
 
+// o "Compartilhar" do iOS: quadrado com seta para cima
+export function Share() {
+  return (
+    <svg {...base} width="18" height="18">
+      <path d="M12 15V3M8 7l4-4 4 4M8 11H6v10h12V11h-2" />
+    </svg>
+  )
+}
+
 export function Close() {
   return (
     <svg {...base} width="16" height="16">
